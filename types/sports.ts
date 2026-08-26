@@ -32,3 +32,10 @@ export type Game = {
     name: string;
     season: number;
   };
+  export type FollowedTeam = {
+    id:string,
+    sports_api_id: number,
+    name: string,
+    logo_url: string,
+    country: string;
+  };
