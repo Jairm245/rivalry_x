@@ -9,6 +9,7 @@ import { Game, League, Team } from "../../types/sports";
 
 
 export default function TeamScreen() {
+  const [loading, setLoading] = useState(true);
   const { teamId } = useLocalSearchParams();
 const [selectedLeague, setSelectedLeague] = useState<League | null>(null);
   const [games, setGames] = useState<Game[]>([]);
@@ -21,19 +22,25 @@ const [selectedLeague, setSelectedLeague] = useState<League | null>(null);
   useEffect(() => {
     const loadGames = async () => {
       try {
+        setLoading(true);
+        setError(null);
+
         const id = Number(teamId);
+
         const teamData = await getTeam(id);
         setTeam(teamData);
+
         const leagueData = await getLeagues(id);
+
         if(leagueData.length === 0) {
             setError("No leagues found for this team");
             return;
         }
+
         setLeagues(leagueData); 
+
         const firstleague = leagueData[0]; // Get the first league
-        
-        
-        setSelectedLeague(firstleague);
+      setSelectedLeague(firstleague);
         setLeagueName(firstleague.name);
         // Store the league name for display
 
@@ -47,6 +54,8 @@ const [selectedLeague, setSelectedLeague] = useState<League | null>(null);
       } catch (error) {
         console.error(error);
         setError("Could not load team games");
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -56,7 +65,9 @@ const [selectedLeague, setSelectedLeague] = useState<League | null>(null);
   }, [teamId]);
 
 const handleLeagueChange = async (league: League) => {
+  const [gamesLoading, setGamesLoading] = useState(false);
     try{
+      setGamesLoading(true);
         const id = Number(teamId);
         setSelectedLeague(league);
         setLeagueName(league.name);
@@ -65,8 +76,18 @@ const handleLeagueChange = async (league: League) => {
     } catch (error) {
         console.error(error);
         setError("Could not load games for the selected league");
+    } finally {
+        setGamesLoading(false);
     }
   };
+
+  if (loading) 
+  {
+    return ( <View>
+      <Text>Loading team...</Text> 
+      </View>);
+    
+  }
 
   return (
   <View style={{ flex: 1 }}>
