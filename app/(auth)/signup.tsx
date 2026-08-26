@@ -16,13 +16,16 @@ export default function SignupScreen() {
         const { data, error } = await supabase.auth.signUp({
             email,
             password,
+            options: {
+                emailRedirectTo: "rilvaryx://login",
+            }
         });
 
         if (error) {
             setError(error.message);
             return;
         } 
-        console.log("Signup successful:", data);
+        
         if(!data.session) {
             setMessage("Check your email to confirm your account.")
         }
