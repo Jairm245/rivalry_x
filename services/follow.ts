@@ -1,5 +1,5 @@
 import { supabase } from "../lib/supabase";
-import { Team } from "../types/sports";
+import { FollowedTeam, Team } from "../types/sports";
 
 export async function followTeam(team:Team) {
     const {
@@ -34,7 +34,7 @@ export async function followTeam(team:Team) {
         })
         .select("id")
         .single();
-        
+
         if(insertError)
         throw insertError;
     teamRow = newTeam;
@@ -118,3 +118,30 @@ export async function unfollowTeam(
         throw error;
     
 }
+
+export async function getFollowedTeams(): 
+Promise<FollowedTeam[]>
+{
+    const {
+        data: {user},
+    } = await supabase.auth.getUser();
+
+    if(!user)
+        throw new Error("User is not logged in!")
+
+    const {data,error} = await supabase
+    .from("user_teams")
+    .select(`
+        team_id, teams (
+        id,
+        sports_api_id,
+        name,
+        logo_url,
+        country
+    )`)
+    .eq("user_id", user.id);
+
+    if(error)
+        throw error
+    return data.map((item:any) => item.teams);
+    }
