@@ -40,7 +40,7 @@ The goal of Rilvaryx is to combine sports scores, team news, personalized team f
 | Expo Router | File-based navigation and dynamic routing |
 | API-Sports | Team, league, and match data |
 | News API | Sports news *(planned)* |
-| Supabase | Authentication, database, and messaging *(planned)* |
+| Supabase | Authentication, database, and messaging |
 
 ## Project Structure
 
