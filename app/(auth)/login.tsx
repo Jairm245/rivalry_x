@@ -18,7 +18,7 @@ const handleLogIn = async() => {
         setError(error.message);
         return;
     }
-    console.log("Login successful:", data);
+    console.log("Login successful:", !!data.session);
     router.replace("/(tabs)");
 };
 

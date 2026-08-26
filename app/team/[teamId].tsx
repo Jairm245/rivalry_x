@@ -3,6 +3,11 @@ import { useEffect, useState } from "react";
 import { FlatList, Image, Pressable, Text, View } from "react-native";
 
 import ScoreCard from "../../components/ScoreCard";
+import {
+  followTeam,
+  isFollowingTeam,
+  unfollowTeam,
+} from "../../services/follow";
 import { getGames, getLeagues, getTeam } from "../../services/sportsApi";
 import { Game, League, Team } from "../../types/sports";
 
@@ -19,6 +24,9 @@ const [selectedLeague, setSelectedLeague] = useState<League | null>(null);
   
   const [error, setError] = useState<string | null>(null);
 
+  const [following,setFollowing] = useState(false);
+  const [followingLoading, setFollowingLoading] = useState(false);
+
   useEffect(() => {
     const loadGames = async () => {
       try {
@@ -29,6 +37,9 @@ const [selectedLeague, setSelectedLeague] = useState<League | null>(null);
 
         const teamData = await getTeam(id);
         setTeam(teamData);
+        
+        const followingStatus = await isFollowingTeam(teamData.id);
+        setFollowing(followingStatus);
 
         const leagueData = await getLeagues(id);
 
@@ -81,6 +92,32 @@ const handleLeagueChange = async (league: League) => {
     }
   };
 
+  const handleFollowPress = async () => {
+    if(!team)
+      return;
+
+    try {
+      setFollowingLoading(true);
+      if(following) {
+        await unfollowTeam(team.id);
+        setFollowing(false);
+      }
+      else {
+        await followTeam(team);
+        setFollowing(true);
+      }
+    }
+     catch(error) 
+     {
+      console.error("Follow error:", error);
+    } 
+    finally 
+    {
+      setFollowingLoading(false);
+    }
+    };
+  
+
   if (loading) 
   {
     return ( <View>
@@ -96,6 +133,31 @@ const handleLeagueChange = async (league: League) => {
         <Image source={{ uri: team.logo }} style={{ width: 100, height: 100 }} />
         <Text>Team: {team.name}</Text>
         <Text>Country: {team.country}</Text>
+        <Pressable
+        onPress={handleFollowPress}
+        disabled={followingLoading}
+        style= {{
+          paddingVertical: 10,
+          paddingHorizontal: 20,
+          backgroundColor: following
+          ? "lightgray"
+          : "black",
+          borderRadius:20,
+        }}
+        >
+          <Text style={{
+            color:following
+            ? "black"
+            : "white",
+          }}
+          >
+            {followingLoading
+            ? "Loading"
+          : following
+          ? "Following"
+        : "Folow"}
+          </Text>
+        </Pressable>
       </View>
     )}
 
